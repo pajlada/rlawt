@@ -105,6 +105,14 @@ jobs:
         env: |
           DEBIAN_FRONTEND: "noninteractive"
 
+        # Create an artifacts directory
+        setup: |
+          mkdir -p "${PWD}/artifacts"
+
+        # Mount the artifacts directory as /artifacts in the container
+        dockerRunArgs: |
+          --volume "${PWD}/artifacts:/artifacts"
+
         run: |
           set -e -x
           uname -a
@@ -113,6 +121,12 @@ jobs:
 
           cmake -B build/linux-aarch64 .
           cmake --build build/linux-aarch64 --config Release
+
+          cp build/linux-aarch64/librlawt.so /artifacts/
+     - name: check artifacts
+       run: |
+         set -e -x
+         ls -la artifacts
   # linux-amd64:
   #   needs: [windows, macos, linux-aarch64]
   #   runs-on: ubuntu-24.04

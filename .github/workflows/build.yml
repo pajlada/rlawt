@@ -89,8 +89,57 @@ jobs:
         path: build/macos-aarch64/librlawt.dylib
         retention-days: 1
         if-no-files-found: error
+  linux-aarch64:
+    runs-on: ubuntu-24.04
+    env:
+      DEBIAN_FRONTEND: "noninteractive"
+    steps:
+    - uses: actions/checkout@v4
+    - uses: uraimo/run-on-arch-action@v3
+      name: run on arch
+      id: runcmd
+      with:
+        arch: aarch64
+        distro: ubuntu20.04
+
+        # Uncomment this to have the action create a package in GHCR to speed up
+        # subsequent builds
+        # githubToken: ${{ github.token }}
+
+        env: |
+          DEBIAN_FRONTEND: "noninteractive"
+          # CMake 3.16.3 does not support arm64 as a platform in FindJNI.
+          # We could alternatively update the Ubuntu version as a fix
+          JAVA_HOME: "/usr/lib/jvm/java-1.11.0-openjdk-arm64"
+
+        setup: |
+          mkdir -p "${PWD}/artifacts"
+
+        # Mount the host artifacts directory as /artifacts in the container
+        dockerRunArgs: |
+          --volume "${PWD}/artifacts:/artifacts"
+
+        install: |
+          set -e -x
+          apt-get update
+          apt-get install -y cmake openjdk-11-jdk libgl-dev
+
+        run: |
+          set -e -x
+          uname -a
+
+          cmake -B build/linux-aarch64 .
+          cmake --build build/linux-aarch64 --config Release
+
+          cp -r build/linux-aarch64/librlawt.so /artifacts/
+    - uses: actions/upload-artifact@v4
+      with:
+        name: linux-aarch64
+        path: artifacts/librlawt.so
+        retention-days: 1
+        if-no-files-found: error
   linux-amd64:
-    needs: [windows, macos]
+    needs: [windows, macos, linux-aarch64]
     runs-on: ubuntu-24.04
     container:
       image: amd64/ubuntu:20.04

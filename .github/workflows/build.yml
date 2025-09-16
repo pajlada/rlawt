@@ -118,11 +118,14 @@ jobs:
         dockerRunArgs: |
           --volume "${PWD}/artifacts:/artifacts"
 
+        install: |
+          set -e -x
+          apt-get update
+          apt-get install -y cmake openjdk-11-jdk libgl-dev
+
         run: |
           set -e -x
           uname -a
-          apt update
-          apt install -y cmake openjdk-11-jdk libgl-dev
 
           # cmake -B build/linux-aarch64 .
           # cmake --build build/linux-aarch64 --config Release

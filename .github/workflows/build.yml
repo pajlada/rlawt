@@ -102,6 +102,11 @@ jobs:
       with:
         arch: aarch64
         distro: ubuntu20.04
+
+        # Not required, but speeds up builds by storing container images in
+        # a GitHub package registry.
+        githubToken: ${{ github.token }}
+
         env: |
           DEBIAN_FRONTEND: "noninteractive"
 

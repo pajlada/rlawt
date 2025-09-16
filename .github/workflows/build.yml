@@ -1,3 +1,4 @@
+# TODO: Make the packaging step separate from the linux build step
 on:
   push:
   pull_request:
@@ -89,11 +90,28 @@ jobs:
         path: build/macos-aarch64/librlawt.dylib
         retention-days: 1
         if-no-files-found: error
+  linux-aarch64:
+    runs-on: ubuntu-24.04
+    env:
+      DEBIAN_FRONTEND: "noninteractive"
+    steps:
+    - uses: actions/checkout@v4
+    - uses: uraimo/run-on-arch-action@v3
+      name: run on arch
+      id: runcmd
+      with:
+        arch: aarch64
+        distro: ubuntu24.04
+
+        run: |
+          uname -a
   linux-amd64:
-    needs: [windows, macos]
+    needs: [windows, macos, linux-aarch64]
     runs-on: ubuntu-24.04
     container:
       image: amd64/ubuntu:20.04
+    env:
+      DEBIAN_FRONTEND: "noninteractive"
     steps:
     - uses: actions/checkout@v4
     - name: install dependencies

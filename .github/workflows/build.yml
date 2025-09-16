@@ -102,9 +102,17 @@ jobs:
       with:
         arch: aarch64
         distro: ubuntu24.04
+        env: |
+          DEBIAN_FRONTEND: "noninteractive"
 
         run: |
+          set -e -x
           uname -a
+          apt update
+          apt install -y cmake openjdk-11-jdk libgl-dev
+
+          cmake -B build/linux-aarch64 .
+          cmake --build build/linux-aarch64 --config Release
   # linux-amd64:
   #   needs: [windows, macos, linux-aarch64]
   #   runs-on: ubuntu-24.04

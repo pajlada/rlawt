@@ -101,7 +101,7 @@ jobs:
       id: runcmd
       with:
         arch: aarch64
-        distro: ubuntu24.04
+        distro: ubuntu20.04
         env: |
           DEBIAN_FRONTEND: "noninteractive"
 

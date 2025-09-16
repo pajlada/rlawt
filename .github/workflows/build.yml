@@ -123,10 +123,10 @@ jobs:
           cmake --build build/linux-aarch64 --config Release
 
           cp build/linux-aarch64/librlawt.so /artifacts/
-     - name: check artifacts
-       run: |
-         set -e -x
-         ls -la artifacts
+    - name: check artifacts
+      run: |
+        set -e -x
+        ls -la artifacts
   # linux-amd64:
   #   needs: [windows, macos, linux-aarch64]
   #   runs-on: ubuntu-24.04

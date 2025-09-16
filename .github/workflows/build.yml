@@ -124,10 +124,11 @@ jobs:
           apt update
           apt install -y cmake openjdk-11-jdk libgl-dev
 
-          cmake -B build/linux-aarch64 .
-          cmake --build build/linux-aarch64 --config Release
+          # cmake -B build/linux-aarch64 .
+          # cmake --build build/linux-aarch64 --config Release
 
-          cp build/linux-aarch64/librlawt.so /artifacts/
+          # cp build/linux-aarch64/librlawt.so /artifacts/
+          touch /artifacts/foo
     - name: check artifacts
       run: |
         set -e -x

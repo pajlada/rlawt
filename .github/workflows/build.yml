@@ -90,6 +90,24 @@ jobs:
   #       path: build/macos-aarch64/librlawt.dylib
   #       retention-days: 1
   #       if-no-files-found: error
+  linux-aarch64-native:
+    runs-on: ubuntu-24.04-arm64
+    env:
+      DEBIAN_FRONTEND: "noninteractive"
+    steps:
+    - uses: actions/checkout@v4
+    - name: install dependencies
+      run: |
+        set -e -x
+        apt-get update
+        apt-get install -y cmake openjdk-11-jdk libgl-dev
+    - name: build linux-aarch64
+      run: |
+        set -e -x
+        uname -a
+
+        cmake -B build/linux-aarch64 .
+        cmake --build build/linux-aarch64 --config Release
   linux-aarch64:
     runs-on: ubuntu-24.04
     env:

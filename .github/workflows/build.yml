@@ -127,8 +127,8 @@ jobs:
           set -e -x
           uname -a
 
-          # cmake -B build/linux-aarch64 .
-          # cmake --build build/linux-aarch64 --config Release
+          cmake -B build/linux-aarch64 .
+          cmake --build build/linux-aarch64 --config Release
 
           # cp build/linux-aarch64/librlawt.so /artifacts/
           touch /artifacts/foo

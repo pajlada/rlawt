@@ -133,8 +133,7 @@ jobs:
           cmake -B build/linux-aarch64 .
           cmake --build build/linux-aarch64 --config Release
 
-          # cp build/linux-aarch64/librlawt.so /artifacts/
-          touch /artifacts/foo
+          cp build/linux-aarch64/librlawt.so /artifacts/
     - name: check artifacts
       run: |
         set -e -x

@@ -109,6 +109,9 @@ jobs:
 
         env: |
           DEBIAN_FRONTEND: "noninteractive"
+          # CMake 3.16.3 does not support arm64 as a platform in FindJNI.
+          # We could alternatively update the Ubuntu version as a fix
+          JAVA_HOME: "/usr/lib/jvm/java-1.11.0-openjdk-arm64"
 
         # Create an artifacts directory
         setup: |

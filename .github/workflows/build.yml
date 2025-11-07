@@ -2,171 +2,160 @@ on:
   push:
   pull_request:
 jobs:
-  windows:
-    runs-on: windows-2022
-    steps:
-    - uses: actions/checkout@v4
-    - name: install dependencies
-      shell: bash
-      run: |
-        set -e -x
-        mkdir -p jdks/x86
-        mkdir -p jdks/aarch64
-        curl -Lo jdks/x86/jdk.zip 'https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.15%2B10/OpenJDK11U-jdk_x86-32_windows_hotspot_11.0.15_10.zip'
-        echo "c8aa33913b27bb09cc66342e567b3a1fe0f4b136569e57e713bd56ef540d4105 jdks/x86/jdk.zip" | sha256sum -c
-        unzip jdks/x86/jdk.zip -d jdks/x86
-        mv jdks/x86/jdk-*/* jdks/x86/
-        curl -Lo jdks/aarch64/jdk.zip 'https://aka.ms/download-jdk/microsoft-jdk-11.0.19-windows-aarch64.zip'
-        echo "2f321bfe2cd2a4759b061f37c82d57d8944e0983bda84d6f9a4d790dd21ccb94 jdks/aarch64/jdk.zip" | sha256sum -c
-        unzip jdks/aarch64/jdk.zip -d jdks/aarch64
-        mv jdks/aarch64/jdk-*/* jdks/aarch64/
-    - name: build windows-x86
-      shell: bash
-      run: |
-        set -e -x
-        # cmake isn't smart enough to find jawt of the correct arch
-        cmake -B build/windows-x86 -A Win32 -DJAVA_JVM_LIBRARY=jdks/x86/lib/jvm.lib -DJAVA_AWT_LIBRARY=jdks/x86/lib/jawt.lib .
-        cmake --build build/windows-x86 --config Release
-    - uses: actions/upload-artifact@v4
-      with:
-        name: windows-x86
-        path: build/windows-x86/Release/rlawt.dll
-        retention-days: 1
-        if-no-files-found: error
-    - name: build windows-amd64
-      shell: bash
-      run: |
-        set -e -x
-        cmake -B build/windows-amd64 .
-        cmake --build build/windows-amd64 --config Release
-    - uses: actions/upload-artifact@v4
-      with:
-        name: windows-amd64
-        path: build/windows-amd64/Release/rlawt.dll
-        retention-days: 1
-        if-no-files-found: error
-    - name: build windows-aarch64
-      shell: bash
-      run: |
-        set -e -x
-        cmake -B build/windows-aarch64 -A ARM64 -DJAVA_JVM_LIBRARY=jdks/aarch64/lib/jvm.lib -DJAVA_AWT_LIBRARY=jdks/aarch64/lib/jawt.lib .
-        cmake --build build/windows-aarch64 --config Release
-    - uses: actions/upload-artifact@v4
-      with:
-        name: windows-aarch64
-        path: build/windows-aarch64/Release/rlawt.dll
-        retention-days: 1
-        if-no-files-found: error
-  macos:
-    runs-on: macos-13
-    steps:
-    - uses: actions/checkout@v4
-    - name: install dependencies
-      run: |
-        set -e -x
-        curl -Lo jdk-11.0.15+10.zip 'https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.15%2B10/OpenJDK11U-jdk_aarch64_mac_hotspot_11.0.15_10.tar.gz'
-        echo "e84143a6c633a26aeefcb1fd5ad8dfb9e952cfec2a1af5c9d9b69f2390990dac  jdk-11.0.15+10.zip" | shasum -a 256 -c
-        tar -xf jdk-11.0.15+10.zip
-    - name: build macos-x86_64
-      run: |
-        set -e -x
-        cmake -B build/macos-x86_64 -DCMAKE_OSX_ARCHITECTURES=x86_64 .
-        cmake --build build/macos-x86_64 --config Release
-    - uses: actions/upload-artifact@v4
-      with:
-        name: macos-x86_64
-        path: build/macos-x86_64/librlawt.dylib
-        retention-days: 1
-        if-no-files-found: error
-    - name: build macos-aarch64
-      run: |
-        set -e -x
-        cmake -B build/macos-aarch64 -DCMAKE_OSX_ARCHITECTURES=arm64 -DJAVA_JVM_LIBRARY=jdk-11.0.15+10/Contents/Home/lib/server/libjvm.dylib -DJAVA_AWT_LIBRARY=jdk-11.0.15+10/Contents/Home/lib/libjawt.dylib .
-        cmake --build build/macos-aarch64 --config Release
-    - uses: actions/upload-artifact@v4
-      with:
-        name: macos-aarch64
-        path: build/macos-aarch64/librlawt.dylib
-        retention-days: 1
-        if-no-files-found: error
+  # windows:
+  #   runs-on: windows-2022
+  #   steps:
+  #   - uses: actions/checkout@v4
+  #   - name: install dependencies
+  #     shell: bash
+  #     run: |
+  #       set -e -x
+  #       mkdir -p jdks/x86
+  #       mkdir -p jdks/aarch64
+  #       curl -Lo jdks/x86/jdk.zip 'https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.15%2B10/OpenJDK11U-jdk_x86-32_windows_hotspot_11.0.15_10.zip'
+  #       echo "c8aa33913b27bb09cc66342e567b3a1fe0f4b136569e57e713bd56ef540d4105 jdks/x86/jdk.zip" | sha256sum -c
+  #       unzip jdks/x86/jdk.zip -d jdks/x86
+  #       mv jdks/x86/jdk-*/* jdks/x86/
+  #       curl -Lo jdks/aarch64/jdk.zip 'https://aka.ms/download-jdk/microsoft-jdk-11.0.19-windows-aarch64.zip'
+  #       echo "2f321bfe2cd2a4759b061f37c82d57d8944e0983bda84d6f9a4d790dd21ccb94 jdks/aarch64/jdk.zip" | sha256sum -c
+  #       unzip jdks/aarch64/jdk.zip -d jdks/aarch64
+  #       mv jdks/aarch64/jdk-*/* jdks/aarch64/
+  #   - name: build windows-x86
+  #     shell: bash
+  #     run: |
+  #       set -e -x
+  #       # cmake isn't smart enough to find jawt of the correct arch
+  #       cmake -B build/windows-x86 -A Win32 -DJAVA_JVM_LIBRARY=jdks/x86/lib/jvm.lib -DJAVA_AWT_LIBRARY=jdks/x86/lib/jawt.lib .
+  #       cmake --build build/windows-x86 --config Release
+  #   - uses: actions/upload-artifact@v4
+  #     with:
+  #       name: windows-x86
+  #       path: build/windows-x86/Release/rlawt.dll
+  #       retention-days: 1
+  #       if-no-files-found: error
+  #   - name: build windows-amd64
+  #     shell: bash
+  #     run: |
+  #       set -e -x
+  #       cmake -B build/windows-amd64 .
+  #       cmake --build build/windows-amd64 --config Release
+  #   - uses: actions/upload-artifact@v4
+  #     with:
+  #       name: windows-amd64
+  #       path: build/windows-amd64/Release/rlawt.dll
+  #       retention-days: 1
+  #       if-no-files-found: error
+  #   - name: build windows-aarch64
+  #     shell: bash
+  #     run: |
+  #       set -e -x
+  #       cmake -B build/windows-aarch64 -A ARM64 -DJAVA_JVM_LIBRARY=jdks/aarch64/lib/jvm.lib -DJAVA_AWT_LIBRARY=jdks/aarch64/lib/jawt.lib .
+  #       cmake --build build/windows-aarch64 --config Release
+  #   - uses: actions/upload-artifact@v4
+  #     with:
+  #       name: windows-aarch64
+  #       path: build/windows-aarch64/Release/rlawt.dll
+  #       retention-days: 1
+  #       if-no-files-found: error
+  # macos:
+  #   runs-on: macos-13
+  #   steps:
+  #   - uses: actions/checkout@v4
+  #   - name: install dependencies
+  #     run: |
+  #       set -e -x
+  #       curl -Lo jdk-11.0.15+10.zip 'https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.15%2B10/OpenJDK11U-jdk_aarch64_mac_hotspot_11.0.15_10.tar.gz'
+  #       echo "e84143a6c633a26aeefcb1fd5ad8dfb9e952cfec2a1af5c9d9b69f2390990dac  jdk-11.0.15+10.zip" | shasum -a 256 -c
+  #       tar -xf jdk-11.0.15+10.zip
+  #   - name: build macos-x86_64
+  #     run: |
+  #       set -e -x
+  #       cmake -B build/macos-x86_64 -DCMAKE_OSX_ARCHITECTURES=x86_64 .
+  #       cmake --build build/macos-x86_64 --config Release
+  #   - uses: actions/upload-artifact@v4
+  #     with:
+  #       name: macos-x86_64
+  #       path: build/macos-x86_64/librlawt.dylib
+  #       retention-days: 1
+  #       if-no-files-found: error
+  #   - name: build macos-aarch64
+  #     run: |
+  #       set -e -x
+  #       cmake -B build/macos-aarch64 -DCMAKE_OSX_ARCHITECTURES=arm64 -DJAVA_JVM_LIBRARY=jdk-11.0.15+10/Contents/Home/lib/server/libjvm.dylib -DJAVA_AWT_LIBRARY=jdk-11.0.15+10/Contents/Home/lib/libjawt.dylib .
+  #       cmake --build build/macos-aarch64 --config Release
+  #   - uses: actions/upload-artifact@v4
+  #     with:
+  #       name: macos-aarch64
+  #       path: build/macos-aarch64/librlawt.dylib
+  #       retention-days: 1
+  #       if-no-files-found: error
   linux-aarch64:
     runs-on: ubuntu-24.04
+    container:
+      image: amd64/ubuntu:20.04
     env:
       DEBIAN_FRONTEND: "noninteractive"
     steps:
     - uses: actions/checkout@v4
-    - uses: uraimo/run-on-arch-action@v3
-      name: run on arch
-      id: runcmd
-      with:
-        arch: aarch64
-        distro: ubuntu20.04
-
-        # Uncomment this to have the action create a package in GHCR to speed up
-        # subsequent builds
-        # githubToken: ${{ github.token }}
-
-        env: |
-          DEBIAN_FRONTEND: "noninteractive"
-          # CMake 3.16.3 does not support arm64 as a platform in FindJNI.
-          # We could alternatively update the Ubuntu version as a fix
-          JAVA_HOME: "/usr/lib/jvm/java-1.11.0-openjdk-arm64"
-
-        setup: |
-          mkdir -p "${PWD}/artifacts"
-
-        # Mount the host artifacts directory as /artifacts in the container
-        dockerRunArgs: |
-          --volume "${PWD}/artifacts:/artifacts"
-
-        install: |
-          set -e -x
-          apt-get update
-          apt-get install -y cmake openjdk-11-jdk libgl-dev
-
-        run: |
-          set -e -x
-          uname -a
-
-          cmake -B build/linux-aarch64 .
-          cmake --build build/linux-aarch64 --config Release
-
-          cp -r build/linux-aarch64/librlawt.so /artifacts/
-    - uses: actions/upload-artifact@v4
-      with:
-        name: linux-aarch64
-        path: artifacts/librlawt.so
-        retention-days: 1
-        if-no-files-found: error
-  linux-amd64:
-    needs: [windows, macos, linux-aarch64]
-    runs-on: ubuntu-24.04
-    container:
-      image: amd64/ubuntu:20.04
-    steps:
-    - uses: actions/checkout@v4
     - name: install dependencies
+      run: |
+        set -e -x
+        mkdir -p /etc/apt/sources.list.d
+        cat <<'EOF' > /etc/apt/sources.list.d/aarch64.list
+        deb [arch=arm64] http://ports.ubuntu.com/ focal main multiverse universe
+        deb [arch=arm64] http://ports.ubuntu.com/ focal-security main multiverse universe
+        deb [arch=arm64] http://ports.ubuntu.com/ focal-backports main multiverse universe
+        deb [arch=arm64] http://ports.ubuntu.com/ focal-updates main multiverse universe
+        EOF
+        dpkg --add-architecture arm64
+        apt update || true
+        apt install -y cmake openjdk-11-jdk:arm64 libgl-dev:arm64 g++-aarch64-linux-gnu
+    - name: setup cross-compilation
       run: |
         set -e -x
         apt update
         apt install -y cmake openjdk-11-jdk libgl-dev
-    - uses: actions/download-artifact@v4
-      with:
-        path: jar/net/runelite/rlawt/
-    - name: build linux-amd64
+        apt install -y g++-aarch64-linux-gnu
+    - name: build linux-aarch64
       run: |
         set -e -x
-        cmake -B build/linux-amd64 .
-        cmake --build build/linux-amd64 --config Release
-        mkdir jar/net/runelite/rlawt/linux-amd64
-        cp build/linux-amd64/librlawt.so jar/net/runelite/rlawt/linux-amd64/
-        cp -r build/linux-amd64/CMakeFiles/jar.dir/net jar/
-    - name: jar
-      run: |
-        set -e -x
-        jar cvf rlawt.jar -C jar/ .
+        cmake -B build/linux-aarch64 -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain-linux-aarch64.cmake .
+        cmake --build build/linux-aarch64 --config Release
     - uses: actions/upload-artifact@v4
       with:
-        name: jar
-        path: rlawt.jar
+        name: linux-aarch64
+        path: build/linux-aarch64/librlawt.so
+        retention-days: 1
         if-no-files-found: error
+  # linux-amd64:
+  #   needs: [windows, macos, linux-aarch64]
+  #   runs-on: ubuntu-24.04
+  #   container:
+  #     image: amd64/ubuntu:20.04
+  #   steps:
+  #   - uses: actions/checkout@v4
+  #   - name: install dependencies
+  #     run: |
+  #       set -e -x
+  #       apt update
+  #       apt install -y cmake openjdk-11-jdk libgl-dev
+  #   - uses: actions/download-artifact@v4
+  #     with:
+  #       path: jar/net/runelite/rlawt/
+  #   - name: build linux-amd64
+  #     run: |
+  #       set -e -x
+  #       cmake -B build/linux-amd64 .
+  #       cmake --build build/linux-amd64 --config Release
+  #       mkdir jar/net/runelite/rlawt/linux-amd64
+  #       cp build/linux-amd64/librlawt.so jar/net/runelite/rlawt/linux-amd64/
+  #       cp -r build/linux-amd64/CMakeFiles/jar.dir/net jar/
+  #   - name: jar
+  #     run: |
+  #       set -e -x
+  #       jar cvf rlawt.jar -C jar/ .
+  #   - uses: actions/upload-artifact@v4
+  #     with:
+  #       name: jar
+  #       path: rlawt.jar
+  #       if-no-files-found: error

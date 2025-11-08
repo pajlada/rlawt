@@ -4,7 +4,7 @@ set(CMAKE_SYSTEM_PROCESSOR aarch64)
 set(CMAKE_C_COMPILER   aarch64-linux-gnu-gcc)
 set(CMAKE_CXX_COMPILER aarch64-linux-gnu-g++)
 
-# set(CMAKE_SYSROOT /path/to/aarch64/sysroot)
+# set(CMAKE_SYSROOT /usr/lib/jvm/java-1.11.0-openjdk-arm64)
 
 set(CMAKE_FIND_ROOT_PATH /usr/aarch64-linux-gnu)
 
